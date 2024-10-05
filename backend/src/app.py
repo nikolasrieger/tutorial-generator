@@ -10,11 +10,11 @@ from engine.audio_generator import AudioGenerator
 from base64 import b64encode
 
 # TODO: Automatic Prompt improvement
-# TODO: Add frontend
 # TODO: Generate video
 # TODO: Different people, different voices, customize
 # TODO: Use Images from page
 # TODO: Get music
+# TODO: upload pdfs
 
 
 app = Flask(__name__)
@@ -27,10 +27,9 @@ model = Model(api_key=API_KEY)
 
 @app.route("/process", methods=["POST"])
 def process_content():
-    data = request.json
-
-    urls = data.get("urls", [])
-    pdf_files = data.get("pdf_files", [])
+    urls = request.form.getlist("urls")
+    pdf_files = request.form.getlist("pdf_files")
+    topic = request.form.get("topic")
 
     if not urls and not pdf_files:
         return jsonify({"error": "No URLs or PDF files provided"}), 400
@@ -43,7 +42,7 @@ def process_content():
         texts += result + "\n"
 
     script_writer = ScriptWriter(model)
-    script = script_writer.generate_script("KAN", texts)
+    script = script_writer.generate_script(topic, texts)
     script = loads(script)
 
     audio_files = []
