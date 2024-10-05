@@ -1,6 +1,6 @@
 from gtts import gTTS
 from os import remove, path
-from subprocess import run, CalledProcessError
+from subprocess import run, CalledProcessError, DEVNULL
 
 
 class AudioGenerator:
@@ -35,7 +35,7 @@ class AudioGenerator:
                 output_file,
             ]
 
-            run(ffmpeg_command, check=True)
+            run(ffmpeg_command, stdout=DEVNULL, stderr=DEVNULL, check=True)
 
             self.__delete_files(files)
             remove("file_list.txt")

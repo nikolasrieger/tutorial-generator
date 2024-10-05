@@ -11,7 +11,7 @@ from base64 import b64encode
 
 # TODO: Automatic Prompt improvement
 # TODO: Generate video
-# TODO: Different people, different voices, customize
+# TODO: Different people, different voices, customize, length, ...
 # TODO: Use Images from page
 # TODO: Get music
 # TODO: upload pdfs

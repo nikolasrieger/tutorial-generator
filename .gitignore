@@ -3,3 +3,5 @@
 __pycache__
 ffmpeg
 node_modules
+fluidsynth
+soundfonts.sf2
