@@ -4,6 +4,12 @@ from model import Model
 from scriptwriter import ScriptWriter
 from extractor import Extractor
 
+# TODO: Prompt improvement
+# TODO: Add frontend
+# TODO: Generate video
+# TODO: Use Images from page
+# TODO: Get music
+
 if __name__ == "__main__":
     load_dotenv()
     API_KEY = getenv("GEMINI_API_KEY")
