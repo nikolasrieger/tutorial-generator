@@ -1,54 +1,40 @@
 from sounddevice import default, rec, wait
-from wave import open
+from wave import open as open_wave
 from os import remove
 from subprocess import run, DEVNULL
+from lib.model import Model
 
 
 class MelodyGenerator:
-    def __init__(self, filename: str = "sonic_pi_script.rb"):
+    def __init__(self, model: Model, filename: str = "sonic_pi_script.rb"):
         self.fs = 44100
-        self.duration = 3 + 1
         self.filename = filename
+        self.model = model
         default.device = (
             "PC-Lautsprecher (Realtek HD Audio output with SST), Windows WDM-KS"
         )
 
-    def __save_melody(self):
-        sonic_pi_script = """
-        use_bpm 120
-        start_time = Time.now
-
-        live_loop :simple_melody do
-        while (Time.now - start_time) < 2
-            play :C4
-            sleep 0.5
-            play :E4
-            sleep 0.5
-            play :G4
-            sleep 0.5
-            play :B4
-            sleep 0.5
-            play :C5
-            sleep 0.5
-        end
-        end
-        """
-
+    def __save_melody(self, theme: str, length: int):
+        sonic_pi_script = self.model.generate(f"Generate a sonic pi script with this theme: {theme} lasting {length} seconds. Return only the script.")
+        sonic_pi_script = "\n".join(sonic_pi_script.split("\n")[1:-1])
+        print(sonic_pi_script)
+        
         with open(self.filename, "w") as file:
             file.write(sonic_pi_script.strip())
 
-    def record_audio(self, id: int):
-        self.__save_melody()
+    def record_audio(self, id: int, theme: str, length: int = 3):
+        self.__save_melody(theme, length)
+        duration = length + 1
 
         audio_data = rec(
-            int(self.duration * self.fs), samplerate=self.fs, channels=2, dtype="int16"
+            int(duration * self.fs), samplerate=self.fs, channels=2, dtype="int16"
         )
 
         run(["cmd.exe", "/c", f"type {self.filename} | sonic_pi4"], check=True)
 
         wait()
 
-        with open("output.wav", "wb") as wf:
+        with open_wave("output.wav", "wb") as wf:
             wf.setnchannels(2)
             wf.setsampwidth(2)
             wf.setframerate(self.fs)

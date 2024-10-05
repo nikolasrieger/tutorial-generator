@@ -30,8 +30,10 @@ class AudioGenerator:
                 "0",
                 "-i",
                 "file_list.txt",
-                "-c",
-                "copy",
+                "-c:a",
+                "libmp3lame",
+                "-b:a",
+                "192k",
                 output_file,
             ]
 

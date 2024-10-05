@@ -7,13 +7,13 @@ from lib.model import Model
 from engine.script_writer import ScriptWriter
 from engine.extractor import Extractor
 from engine.audio_generator import AudioGenerator
+from engine.melody_generator import MelodyGenerator
 from base64 import b64encode
 
 # TODO: Automatic Prompt improvement
 # TODO: Generate video
-# TODO: Different people, different voices, customize, length, ...
-# TODO: Use Images from page
-# TODO: Get music
+# TODO: Different people, different voices, customize, length, difficulty ...
+# TODO: Use Images from pages
 # TODO: upload pdfs
 
 
@@ -23,6 +23,7 @@ CORS(app)
 load_dotenv()
 API_KEY = getenv("GEMINI_API_KEY")
 model = Model(api_key=API_KEY)
+melody_generator = MelodyGenerator(model)
 
 
 @app.route("/process", methods=["POST"])
@@ -49,16 +50,23 @@ def process_content():
     audio_generator = AudioGenerator()
 
     for idx, element in enumerate(script):
+        print(idx, len(script))
         if element["tag"] == "speech":
             file_name = f"output_{idx}.mp3"
             audio_generator.generate_audio(element["text"], file_name)
             audio_files.append(file_name)
+        elif element["tag"] == "music":
+            melody_generator.record_audio(idx, element["text"])
+            audio_files.append(f"output_{idx}.mp3")
 
+    print("merge")
     output_filename = "output.mp3"
     audio_generator.merge_audio(audio_files, output_filename)
+    print("merged")
 
     with open(output_filename, "rb") as audio_file:
         audio_base64 = b64encode(audio_file.read()).decode("utf-8")
+    print("encoded")
 
     return jsonify({"audio_file": audio_base64})
 
