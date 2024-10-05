@@ -42,16 +42,3 @@ class Extractor:
             extracted_texts.append(text)
 
         return extracted_texts
-
-
-if __name__ == "__main__":
-    pdf_files = []
-    urls = ["https://kindxiaoming.github.io/pykan/intro.html"] 
-
-    extractor = Extractor(pdf_filenames=pdf_files, urls=urls)
-    results = extractor.extract_text()
-
-    for index, result in enumerate(results):
-        print(f"Result {index + 1}:")
-        print(result)
-        print("-" * 40)

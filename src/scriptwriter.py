@@ -1,6 +1,14 @@
 from model import Model 
-from dotenv import load_dotenv
-from os import getenv
+
+OUTPUT_FORMAT = """
+The podcast name is "Teachify".
+Return a JSON object List[Element] with the following structure:
+Element {
+    "tag": str,
+    "text": str}
+There a two tags available: "music" and "speech". If you choose "music", the text field should be a description of the music.
+If you choose "speech", the text field should be the text of the speech.
+"""
 
 class ScriptWriter:
     def __init__(self, model: Model):
@@ -15,15 +23,9 @@ class ScriptWriter:
                   f"- Body (break down the topic into parts, explain in detail)\n"
                   f"- Conclusion (summarize, provide next steps, thank the listeners)\n"
                   f"Add speaker cues and timestamps if appropriate.")
+        
+        script = self.model.generate(prompt)
 
-        return self.model.generate(prompt)
+        converted_script = self.model.generate(script + "\n" + OUTPUT_FORMAT)
 
-
-if __name__ == "__main__":
-    load_dotenv()
-    API_KEY = getenv("GEMINI_API_KEY")
-    model = Model(api_key=API_KEY)
-    script_writer = ScriptWriter(model)
-    print(
-        script_writer.generate_script("The future of AI", "In the future, AI will be used to solve complex problems in healthcare, finance, and other industries.")
-    )
+        return converted_script
