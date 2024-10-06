@@ -17,6 +17,7 @@ class MelodyGenerator:
     def __save_melody(self, theme: str, length: int):
         sonic_pi_script = self.model.generate(
             f"Generate a sonic pi script with this theme: {theme} lasting approximately {length} seconds. Return only the script."
+            f"Use ambient music, samples and synthesizers if possible. Be as creative as possible."
         )
         sonic_pi_script = "\n".join(sonic_pi_script.split("\n")[1:-1])
 
