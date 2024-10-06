@@ -13,11 +13,10 @@ from time import time
 from models import db, Prompt, Feedback
 from random import choice
 
-# TODO: Remove parts without audio
-# TODO: Generate video
-# TODO: Different people, different voices, customize...
-# TODO: Use Images from pages
 # TODO: Parse Feedback and remove bad prompts etc.
+# TODO: Remove parts without audio
+# TODO: Use Images from pages
+# TODO: Generate video
 
 
 app = Flask(__name__)
