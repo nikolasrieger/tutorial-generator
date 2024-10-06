@@ -5,8 +5,10 @@ The podcast name is "Teachify".
 Return a JSON object List[Element] with the following structure:
 Element {
     "tag": str,
-    "text": str}
-There a two tags available: "music" and "speech". If you choose "music", the text field should be a description of the music.
+    "text": str,
+    "duration": int
+}
+There a two tags available: "music" and "speech". If you choose "music", the text field should be a description of the music and duration the length of the music.
 If you choose "speech", the text field should be the text of the speech.
 """
 
@@ -18,13 +20,15 @@ class ScriptWriter:
     def generate_script(
         self,
         topic: str,
-        context: str = "",
-        tone: str = "informative",
-        audience: str = "general audience",
+        context: str,
+        tone: str,
+        audience: str,
+        length: int,
     ):
         prompt = (
             f"Draft a structured script for a tutorial on the topic: '{topic}'.\n"
             f"The podcast should be designed for {audience} and should have a {tone} tone.\n"
+            f"The podcast should be approximately {length} minutes long.\n\n"
             f"Include the following context: {context}\n\n"
             f"Structure the script with sections such as:\n"
             f"- Introduction (greet the listeners, introduce the topic)\n"
@@ -32,6 +36,8 @@ class ScriptWriter:
             f"- Conclusion (summarize, provide next steps, thank the listeners)\n"
             f"Add speaker cues and timestamps if appropriate."
         )
+
+        print(prompt)
 
         script = self.model.generate(prompt)
 

@@ -9,6 +9,7 @@ from engine.extractor import Extractor
 from engine.audio_generator import AudioGenerator
 from engine.melody_generator import MelodyGenerator
 from base64 import b64encode
+from time import time
 
 # TODO: Automatic Prompt improvement
 # TODO: Generate video
@@ -29,8 +30,12 @@ melody_generator = MelodyGenerator(model)
 @app.route("/process", methods=["POST"])
 def process_content():
     urls = request.form.getlist("urls")
+    urls = urls[0].split(",")
     pdf_files = request.form.getlist("pdf_files")
     topic = request.form.get("topic")
+    target_audience = request.form.get("targetAudience", "general audience")
+    tone = request.form.get("tone", "informative")
+    length = int(request.form.get("length", 5))
 
     if not urls and not pdf_files:
         return jsonify({"error": "No URLs or PDF files provided"}), 400
@@ -38,12 +43,14 @@ def process_content():
     extractor = Extractor(pdf_filenames=pdf_files, urls=urls)
     results = extractor.extract_text()
 
+    print(results, urls)
+
     texts = ""
     for result in results:
         texts += result + "\n"
 
     script_writer = ScriptWriter(model)
-    script = script_writer.generate_script(topic, texts)
+    script = script_writer.generate_script(topic, texts, tone, target_audience, length)
     script = loads(script)
 
     audio_files = []
@@ -56,17 +63,14 @@ def process_content():
             audio_generator.generate_audio(element["text"], file_name)
             audio_files.append(file_name)
         elif element["tag"] == "music":
-            melody_generator.record_audio(idx, element["text"])
+            melody_generator.record_audio(idx, element["text"], element["duration"])
             audio_files.append(f"output_{idx}.mp3")
 
-    print("merge")
-    output_filename = "output.mp3"
+    output_filename = f"output_{int(time())}.mp3"
     audio_generator.merge_audio(audio_files, output_filename)
-    print("merged")
 
     with open(output_filename, "rb") as audio_file:
         audio_base64 = b64encode(audio_file.read()).decode("utf-8")
-    print("encoded")
 
     return jsonify({"audio_file": audio_base64})
 

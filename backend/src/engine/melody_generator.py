@@ -15,10 +15,11 @@ class MelodyGenerator:
         )
 
     def __save_melody(self, theme: str, length: int):
-        sonic_pi_script = self.model.generate(f"Generate a sonic pi script with this theme: {theme} lasting {length} seconds. Return only the script.")
+        sonic_pi_script = self.model.generate(
+            f"Generate a sonic pi script with this theme: {theme} lasting approximately {length} seconds. Return only the script."
+        )
         sonic_pi_script = "\n".join(sonic_pi_script.split("\n")[1:-1])
-        print(sonic_pi_script)
-        
+
         with open(self.filename, "w") as file:
             file.write(sonic_pi_script.strip())
 
@@ -45,8 +46,8 @@ class MelodyGenerator:
             "./lib/ffmpeg/bin/ffmpeg",
             "-i",
             "output.wav",
-            "-ss",
-            "1",
+            "-af",
+            "silenceremove=1:0:-50dB",
             "-acodec",
             "mp3",
             output_file,

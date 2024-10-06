@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Button, Typography, CircularProgress, Box, AppBar, Toolbar, TextField } from '@mui/material';
+import { Button, Typography, CircularProgress, Box, AppBar, Toolbar, TextField, Switch, FormControlLabel } from '@mui/material';
 import axios from 'axios';
 import UrlInput from './components/UrlInput';
 import PdfUploadButton from './components/PdfUploadButton';
@@ -10,7 +10,11 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [audioFile, setAudioFile] = useState(null);
   const [error, setError] = useState('');
-  const [topic, setTopic] = useState(''); 
+  const [topic, setTopic] = useState('');
+  const [targetAudience, setTargetAudience] = useState('');
+  const [tone, setTone] = useState('');
+  const [length, setLength] = useState('');
+  const [showExtraFields, setShowExtraFields] = useState(false); 
 
   const handlePdfChange = (e) => {
     setPdfFiles(e.target.files);
@@ -24,7 +28,13 @@ const App = () => {
 
     const formData = new FormData();
     formData.append('urls', urls);
-    formData.append('topic', topic); 
+    formData.append('topic', topic);
+
+    if (showExtraFields) {  
+      formData.append('target_audience', targetAudience);
+      formData.append('tone', tone);
+      formData.append('length', length);
+    }
 
     for (let i = 0; i < pdfFiles.length; i++) {
       formData.append('pdf_files', pdfFiles[i]);
@@ -36,7 +46,7 @@ const App = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      setAudioFile(response.data.audio_file); 
+      setAudioFile(response.data.audio_file);
     } catch (err) {
       setError('An error occurred. Please try again.');
     }
@@ -53,15 +63,15 @@ const App = () => {
         uintArray[i] = byteString.charCodeAt(i);
       }
 
-      const blob = new Blob([uintArray], { type: 'audio/mp3' }); 
-      const url = URL.createObjectURL(blob); 
+      const blob = new Blob([uintArray], { type: 'audio/mp3' });
+      const url = URL.createObjectURL(blob);
 
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'generated_audio.mp3'); 
+      link.setAttribute('download', 'generated_audio.mp3');
       document.body.appendChild(link);
-      link.click();  
-      document.body.removeChild(link); 
+      link.click();
+      document.body.removeChild(link);
     }
   };
 
@@ -75,7 +85,7 @@ const App = () => {
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ mx: 2,  marginTop: 5 }}>
+      <Box sx={{ mx: 2, marginTop: 5 }}>
         <form onSubmit={handleSubmit}>
           <TextField
             label="Topic"
@@ -83,12 +93,49 @@ const App = () => {
             fullWidth
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            style={{ marginBottom: '16px' }} 
+            style={{ marginBottom: '16px' }}
           />
 
           <UrlInput urls={urls} setUrls={setUrls} />
 
           <PdfUploadButton pdfFiles={pdfFiles} handlePdfChange={handlePdfChange} />
+
+          <FormControlLabel
+            control={<Switch checked={showExtraFields} onChange={() => setShowExtraFields(!showExtraFields)} />}
+            label="Advanced options"
+            style={{ marginBottom: '16px' }}
+          />
+
+          {showExtraFields && (
+            <>
+              <TextField
+                label="Target Audience"
+                variant="outlined"
+                fullWidth
+                value={targetAudience}
+                onChange={(e) => setTargetAudience(e.target.value)}
+                style={{ marginBottom: '16px' }}
+              />
+
+              <TextField
+                label="Tone"
+                variant="outlined"
+                fullWidth
+                value={tone}
+                onChange={(e) => setTone(e.target.value)}
+                style={{ marginBottom: '16px' }}
+              />
+
+              <TextField
+                label="Approximate Length (in min)"
+                variant="outlined"
+                fullWidth
+                value={length}
+                onChange={(e) => setLength(e.target.value)}
+                style={{ marginBottom: '16px' }}
+              />
+            </>
+          )}
 
           {loading ? (
             <Box textAlign="center" mt={2}>
@@ -108,13 +155,13 @@ const App = () => {
         </form>
 
         {error && (
-          <Typography color="error" align="center" mt={2}>
+          <Typography color="error" align="center" mt={2} style={{ marginBottom: '16px' }}>
             {error}
           </Typography>
         )}
 
         {audioFile && (
-          <Box mt={4} display="flex" alignItems="center" justifyContent="center">
+          <Box mt={4} display="flex" alignItems="center" justifyContent="center" style={{ marginBottom: '16px' }}>
             <audio controls src={`data:audio/mp3;base64,${audioFile}`} style={{ marginLeft: '16px' }} />
             <Button
               variant="contained"
