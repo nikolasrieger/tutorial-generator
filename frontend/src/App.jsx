@@ -18,7 +18,7 @@ import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import axios from 'axios';
 import UrlInput from './components/UrlInput';
 import PdfUploadButton from './components/PdfUploadButton';
-import FeedbackDialog from './components/FeedbackDialog'; // Import your dialog component
+import FeedbackDialog from './components/FeedbackDialog'; 
 import './App.scss';
 import './App.css';
 
@@ -34,7 +34,7 @@ const App = () => {
   const [length, setLength] = useState('');
   const [showExtraFields, setShowExtraFields] = useState(false);
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
-  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false); // New state for feedback submission status
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false); 
   const [feedbackType, setFeedbackType] = useState('');
 
   const handlePdfChange = (e) => {
@@ -46,7 +46,7 @@ const App = () => {
     setLoading(true);
     setError('');
     setAudioFile(null);
-    setFeedbackSubmitted(false); // Reset feedback submission status
+    setFeedbackSubmitted(false); 
 
     const formData = new FormData();
     formData.append('urls', urls);
@@ -114,7 +114,7 @@ const App = () => {
         feedback_type: feedbackType,
         comment: comment || '',
       });
-      setFeedbackSubmitted(true); // Mark feedback as submitted
+      setFeedbackSubmitted(true); 
     } catch (error) {
       console.error('Failed to submit feedback:', error.response || error);
     }
@@ -247,17 +247,16 @@ const App = () => {
                 Download MP3
               </Button>
 
-              {/* Thumbs Up and Down Buttons with Icons */}
               <IconButton
                 onClick={() => openFeedbackDialog('like')}
-                disabled={feedbackSubmitted} // Disable if feedback already submitted
+                disabled={feedbackSubmitted}
                 sx={{ marginLeft: '16px' }}
               >
                 <ThumbUpIcon color={feedbackSubmitted ? 'disabled' : 'primary'} fontSize="large" />
               </IconButton>
               <IconButton
                 onClick={() => openFeedbackDialog('dislike')}
-                disabled={feedbackSubmitted} // Disable if feedback already submitted
+                disabled={feedbackSubmitted} 
                 sx={{ marginLeft: '8px' }}
               >
                 <ThumbDownIcon color={feedbackSubmitted ? 'disabled' : 'error'} fontSize="large" />
@@ -267,7 +266,6 @@ const App = () => {
         </Paper>
       </Container>
 
-      {/* Feedback Dialog */}
       <FeedbackDialog
         open={feedbackDialogOpen}
         onClose={closeFeedbackDialog}

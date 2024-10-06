@@ -57,8 +57,18 @@ def submit_feedback():
             prompt_id=prompt_id, feedback_type=feedback_type, comment=comment
         )
         db.session.add(new_feedback)
-        # TODO: Generate new prompt incorporating feedback
-        # TODO: Maybe combine similar prompts
+
+        prompts = get_prompts()
+        prompt_text = ""
+        for prompt in prompts:
+            if prompt.id == prompt_id:
+                prompt_text = prompt.prompt_text
+        
+        new_prompt = model.generate(f"Generate a new, improved prompt based on the feedback: {comment}\nThis is the old prompt: {prompt_text}"
+                       f"Do not change the general purpose of the prompt, but improve it as you like. Return only the prompt.")
+        
+        add_prompt(new_prompt)
+
     db.session.commit()
 
     return jsonify({"message": "Feedback submitted successfully!"}), 201
