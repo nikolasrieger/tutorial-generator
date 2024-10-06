@@ -12,6 +12,10 @@ import {
   Container,
   Paper,
   IconButton,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
 } from '@mui/material';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
@@ -19,14 +23,14 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import axios from 'axios';
 import UrlInput from './components/UrlInput';
 import PdfUploadButton from './components/PdfUploadButton';
-import FeedbackDialog from './components/FeedbackDialog'; 
+import FeedbackDialog from './components/FeedbackDialog';
 import './App.scss';
 import './App.css';
 
 const App = () => {
   const [urls, setUrls] = useState([]);
   const [pdfFiles, setPdfFiles] = useState([]);
-  const [pdfBase64Files, setPdfBase64Files] = useState([]);  // New state for base64 encoded PDFs
+  const [pdfBase64Files, setPdfBase64Files] = useState([]);
   const [loading, setLoading] = useState(false);
   const [audioFile, setAudioFile] = useState(null);
   const [error, setError] = useState('');
@@ -36,25 +40,23 @@ const App = () => {
   const [length, setLength] = useState('');
   const [showExtraFields, setShowExtraFields] = useState(false);
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
-  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false); 
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const [feedbackType, setFeedbackType] = useState('');
   const [promptID, setPromptID] = useState('');
+  const [language, setLanguage] = useState('');
 
-  // Function to handle PDF upload
   const handlePdfChange = (e) => {
     const files = e.target.files;
     setPdfFiles(files);
-    convertFilesToBase64(files);  // Convert to base64
+    convertFilesToBase64(files);
   };
 
-  // Function to convert PDF files to Base64
   const convertFilesToBase64 = (files) => {
-    const base64Files = [];
     const fileReaders = Array.from(files).map(file => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onloadend = () => {
-          resolve(reader.result.split(',')[1]); // Exclude the "data:application/pdf;base64," part
+          resolve(reader.result.split(',')[1]);
         };
         reader.onerror = reject;
         reader.readAsDataURL(file);
@@ -68,7 +70,6 @@ const App = () => {
       .catch(error => console.error("Error converting files to base64:", error));
   };
 
-  // Function to remove a selected PDF
   const handleRemovePdf = (index) => {
     const newPdfFiles = Array.from(pdfFiles).filter((_, i) => i !== index);
     const newPdfBase64Files = pdfBase64Files.filter((_, i) => i !== index);
@@ -81,19 +82,35 @@ const App = () => {
     setLoading(true);
     setError('');
     setAudioFile(null);
-    setFeedbackSubmitted(false); 
+    setFeedbackSubmitted(false);
 
     const formData = new FormData();
-    formData.append('urls', urls);
+    
+    if (urls.length > 0) {
+      urls.forEach(url => {
+        if (url.trim()) { 
+          formData.append('urls', url);
+        }
+      });
+    }
+
     formData.append('topic', topic);
 
     if (showExtraFields) {
-      formData.append('target_audience', targetAudience);
-      formData.append('tone', tone);
-      formData.append('length', length);
+      if (targetAudience.trim()) {
+        formData.append('target_audience', targetAudience);
+      }
+      if (tone.trim()) {
+        formData.append('tone', tone);
+      }
+      if (length.trim()) {
+        formData.append('length', length);
+      }
+      if (language.trim()) {
+        formData.append('language', language);
+      }
     }
 
-    // Attach the base64 PDFs
     for (let i = 0; i < pdfBase64Files.length; i++) {
       formData.append('pdf_files', pdfBase64Files[i]);
     }
@@ -152,7 +169,7 @@ const App = () => {
         feedback_type: feedbackType,
         comment: comment || '',
       });
-      setFeedbackSubmitted(true); 
+      setFeedbackSubmitted(true);
     } catch (error) {
       console.error('Failed to submit feedback:', error.response || error);
     }
@@ -240,6 +257,21 @@ const App = () => {
                     onChange={(e) => setLength(e.target.value)}
                     sx={{ marginBottom: 3 }}
                   />
+
+                  <FormControl fullWidth sx={{ marginBottom: 3 }}>
+                    <InputLabel>Language</InputLabel>
+                    <Select
+                      value={language}
+                      onChange={(e) => setLanguage(e.target.value)}
+                      label="Language"
+                    >
+                      <MenuItem value="en">English</MenuItem>
+                      <MenuItem value="fr">French</MenuItem>
+                      <MenuItem value="zh-CN">Mandarin</MenuItem>
+                      <MenuItem value="pt">Portuguese</MenuItem>
+                      <MenuItem value="es">Spanish</MenuItem>
+                    </Select>
+                  </FormControl>
                 </>
               )}
 
@@ -298,7 +330,7 @@ const App = () => {
               </IconButton>
               <IconButton
                 onClick={() => openFeedbackDialog('dislike')}
-                disabled={feedbackSubmitted} 
+                disabled={feedbackSubmitted}
                 sx={{ marginLeft: '8px' }}
               >
                 <ThumbDownIcon color={feedbackSubmitted ? 'disabled' : 'error'} fontSize="large" />

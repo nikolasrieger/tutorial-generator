@@ -36,17 +36,18 @@ class ScriptWriter:
         tone: str,
         audience: str,
         length: int,
-        prompt_template: str
+        prompt_template: str,
+        language: str,
     ):
         prompt = (
             f"Topic: {topic}\n"
             f"Context: {context}\n"
-            f"Tone: {tone}, Audience: {audience}, Length: {length}\n\n" +
-            prompt_template
+            f"Tone: {tone}, Audience: {audience}, Length: {length}, Language: {language}\n\n"
+            + prompt_template
         )
 
         script = self.model.generate(prompt)
 
-        converted_script = self.model.generate(script + "\n" + OUTPUT_FORMAT, True)
+        converted_script = self.model.generate(script + "\nLanguage:" + language + "\n" + OUTPUT_FORMAT, True)
 
         return converted_script

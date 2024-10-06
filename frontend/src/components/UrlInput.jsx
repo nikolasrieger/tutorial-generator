@@ -19,7 +19,7 @@ const UrlInput = ({ urls, setUrls }) => {
   return (
     <Box>
       <TextField
-        label="Enter URLs"
+        label="URLs"
         variant="outlined"
         fullWidth
         value={currentUrl}

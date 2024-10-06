@@ -13,11 +13,10 @@ from time import time
 from models import db, Prompt, Feedback
 from random import choice
 
-# TODO: Language Checker and creator
+# TODO: Remove parts without audio
 # TODO: Generate video
 # TODO: Different people, different voices, customize...
 # TODO: Use Images from pages
-# TODO: upload pdfs
 # TODO: Parse Feedback and remove bad prompts etc.
 
 
@@ -62,23 +61,26 @@ def submit_feedback():
         for prompt in prompts:
             if prompt.id == prompt_id:
                 prompt_text = prompt.prompt_text
-        
-        new_prompt = model.generate(f"Generate a new, improved prompt based on the feedback: {comment}\nThis is the old prompt: {prompt_text}"
-                       f"Do not change the general purpose of the prompt, but improve it as you like. Return only the prompt.")
-        
+
+        new_prompt = model.generate(
+            f"Generate a new, improved prompt based on the feedback: {comment}\nThis is the old prompt: {prompt_text}"
+            f"Do not change the general purpose of the prompt, but improve it as you like. Return only the prompt."
+        )
+
         add_prompt(new_prompt)
 
     db.session.commit()
 
     return jsonify({"message": "Successful"}), 201
 
+
 @app.route("/process", methods=["POST"])
 def process_content():
     urls = request.form.getlist("urls")
     urls = urls[0].split(",") if urls else []
-    
+
     pdf_files_base64 = request.form.getlist("pdf_files")
-    
+
     pdf_filenames = []
     if pdf_files_base64:
         for idx, pdf_base64 in enumerate(pdf_files_base64):
@@ -89,14 +91,15 @@ def process_content():
                 temp_pdf = open(f"temp_pdf_{idx}.pdf", "wb")
                 temp_pdf.write(pdf_content)
                 temp_pdf.close()
-                
+
                 pdf_filenames.append(file_name)
             except Exception as e:
                 return jsonify({"error": "Internal Server Error"}), 500
-    
+
     topic = request.form.get("topic")
     target_audience = request.form.get("target_audience", "general audience")
     tone = request.form.get("tone", "informative")
+    language = request.form.get("language", "en")
     length = int(request.form.get("length", 5))
 
     if not urls and not pdf_filenames:
@@ -105,7 +108,6 @@ def process_content():
     extractor = Extractor(pdf_filenames=pdf_filenames, urls=urls)
     results = extractor.extract_text()
 
-    print(results)
     texts = "\n".join(results)
 
     script_writer = ScriptWriter(model)
@@ -116,15 +118,14 @@ def process_content():
 
     prompt = choice(prompts)
     script = script_writer.generate_script(
-        topic, texts, tone, target_audience, length, prompt.prompt_text
+        topic, texts, tone, target_audience, length, prompt.prompt_text, language
     )
     script = loads(script)
 
     audio_files = []
-    audio_generator = AudioGenerator()
+    audio_generator = AudioGenerator(language)
 
     for idx, element in enumerate(script):
-        print(idx, len(script))
         if element["tag"] == "speech":
             file_name = f"output_{idx}.mp3"
             audio_generator.generate_audio(element["text"], file_name)
@@ -138,13 +139,12 @@ def process_content():
 
     with open(output_filename, "rb") as audio_file:
         audio_base64 = b64encode(audio_file.read()).decode("utf-8")
-    
+
     for pdf_file in pdf_filenames:
         if path.exists(pdf_file):
             remove(pdf_file)
 
     return jsonify({"audio_file": audio_base64, "prompt_id": prompt.id})
-
 
 
 def get_prompts():

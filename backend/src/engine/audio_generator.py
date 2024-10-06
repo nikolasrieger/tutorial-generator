@@ -4,7 +4,7 @@ from subprocess import run, CalledProcessError, DEVNULL
 
 
 class AudioGenerator:
-    def __init__(self, lang: str = "en", slow: bool = False):
+    def __init__(self, lang: str, slow: bool = False):
         self.lang = lang
         self.slow = slow
 
