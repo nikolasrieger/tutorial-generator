@@ -14,7 +14,6 @@ from models import db, Prompt, Feedback
 from random import choice
 
 # TODO: Parse Feedback and remove bad prompts etc.
-# TODO: Remove parts without audio
 # TODO: Use Images from pages
 # TODO: Generate video
 

@@ -48,9 +48,11 @@ class MelodyGenerator:
             "-i",
             "output.wav",
             "-af",
-            "silenceremove=1:0:-50dB",
-            "-acodec",
-            "mp3",
+            "silenceremove=start_periods=1:start_duration=0:start_threshold=0.02",
+            "-codec:a",
+            "libmp3lame",
+            "-b:a",
+            "192k",
             output_file,
         ]
 
