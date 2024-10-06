@@ -14,6 +14,7 @@ If you choose "speech", the text field should be the text of the speech.
 
 template = """
 Draft a structured script for a tutorial on above topic and keep all the specific instructions in mind.\n
+Add the above context to the script, put in the informations, do not leave gaps and make sure to maintain the tone and target audience.\n
 Structure the script with sections such as:\n
 - Introduction (greet the listeners, introduce the topic)\n
 - Body (break down the topic into parts, explain in detail)\n

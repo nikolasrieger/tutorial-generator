@@ -1,10 +1,26 @@
 import React, { useState } from 'react';
-import { Button, Typography, CircularProgress, Box, AppBar, Toolbar, TextField, Switch, FormControlLabel, Container, Paper } from '@mui/material';
+import {
+  Button,
+  Typography,
+  CircularProgress,
+  Box,
+  AppBar,
+  Toolbar,
+  TextField,
+  Switch,
+  FormControlLabel,
+  Container,
+  Paper,
+  IconButton,
+} from '@mui/material';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import axios from 'axios';
 import UrlInput from './components/UrlInput';
 import PdfUploadButton from './components/PdfUploadButton';
-import './App.scss'; 
-import './App.css'; 
+import FeedbackDialog from './components/FeedbackDialog'; // Import your dialog component
+import './App.scss';
+import './App.css';
 
 const App = () => {
   const [urls, setUrls] = useState([]);
@@ -17,6 +33,9 @@ const App = () => {
   const [tone, setTone] = useState('');
   const [length, setLength] = useState('');
   const [showExtraFields, setShowExtraFields] = useState(false);
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false); // New state for feedback submission status
+  const [feedbackType, setFeedbackType] = useState('');
 
   const handlePdfChange = (e) => {
     setPdfFiles(e.target.files);
@@ -27,6 +46,7 @@ const App = () => {
     setLoading(true);
     setError('');
     setAudioFile(null);
+    setFeedbackSubmitted(false); // Reset feedback submission status
 
     const formData = new FormData();
     formData.append('urls', urls);
@@ -75,6 +95,30 @@ const App = () => {
       link.click();
       document.body.removeChild(link);
     }
+  };
+
+  const openFeedbackDialog = (type) => {
+    if (!feedbackSubmitted) {
+      setFeedbackType(type);
+      setFeedbackDialogOpen(true);
+    }
+  };
+
+  const closeFeedbackDialog = () => {
+    setFeedbackDialogOpen(false);
+  };
+
+  const handleFeedbackSubmit = async (comment) => {
+    try {
+      await axios.post('http://127.0.0.1:5000/submit_feedback', {
+        feedback_type: feedbackType,
+        comment: comment || '',
+      });
+      setFeedbackSubmitted(true); // Mark feedback as submitted
+    } catch (error) {
+      console.error('Failed to submit feedback:', error.response || error);
+    }
+    closeFeedbackDialog();
   };
 
   return (
@@ -202,10 +246,33 @@ const App = () => {
               >
                 Download MP3
               </Button>
+
+              {/* Thumbs Up and Down Buttons with Icons */}
+              <IconButton
+                onClick={() => openFeedbackDialog('like')}
+                disabled={feedbackSubmitted} // Disable if feedback already submitted
+                sx={{ marginLeft: '16px' }}
+              >
+                <ThumbUpIcon color={feedbackSubmitted ? 'disabled' : 'primary'} fontSize="large" />
+              </IconButton>
+              <IconButton
+                onClick={() => openFeedbackDialog('dislike')}
+                disabled={feedbackSubmitted} // Disable if feedback already submitted
+                sx={{ marginLeft: '8px' }}
+              >
+                <ThumbDownIcon color={feedbackSubmitted ? 'disabled' : 'error'} fontSize="large" />
+              </IconButton>
             </Box>
           )}
         </Paper>
       </Container>
+
+      {/* Feedback Dialog */}
+      <FeedbackDialog
+        open={feedbackDialogOpen}
+        onClose={closeFeedbackDialog}
+        onSubmit={handleFeedbackSubmit}
+      />
     </div>
   );
 };

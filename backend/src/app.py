@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from os import getenv
 from json import loads
 from lib.model import Model
-from engine.script_writer import ScriptWriter
+from engine.script_writer import ScriptWriter, template
 from engine.extractor import Extractor
 from engine.audio_generator import AudioGenerator
 from engine.melody_generator import MelodyGenerator
@@ -28,15 +28,16 @@ API_KEY = getenv("GEMINI_API_KEY")
 model = Model(api_key=API_KEY)
 melody_generator = MelodyGenerator(model)
 
-app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///user_feedback.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 
+PROMPT_ID = 0  # TODO: send this maybe via REST
+
 
 @app.route("/submit_feedback", methods=["POST"])
 def submit_feedback():
-    prompt_id = request.json["prompt_id"]
+    prompt_id = PROMPT_ID
     feedback_type = request.json["feedback_type"]
     comment = request.json.get("comment", None)
 
@@ -65,6 +66,7 @@ def submit_feedback():
 
 @app.route("/process", methods=["POST"])
 def process_content():
+    global PROMPT_ID
     urls = request.form.getlist("urls")
     urls = urls[0].split(",")
     pdf_files = request.form.getlist("pdf_files")
@@ -84,8 +86,15 @@ def process_content():
         texts += result + "\n"
 
     script_writer = ScriptWriter(model)
+    prompts = get_prompts()
+    if prompts == []:
+        add_prompt(template)
+        prompts = get_prompts()
+
+    prompt = choice(prompts)
+    PROMPT_ID = prompt.id
     script = script_writer.generate_script(
-        topic, texts, tone, target_audience, length, choice(get_prompts()).prompt_text
+        topic, texts, tone, target_audience, length, prompt.prompt_text
     )
     script = loads(script)
 
@@ -107,7 +116,7 @@ def process_content():
 
     with open(output_filename, "rb") as audio_file:
         audio_base64 = b64encode(audio_file.read()).decode("utf-8")
-
+    print("Done")
     return jsonify({"audio_file": audio_base64})
 
 
