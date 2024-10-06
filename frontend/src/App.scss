@@ -40,8 +40,8 @@ body {
 
 .star {
   $star-count: 50;
-  --star-color: #0077be; 
-  --star-width: 4px; 
+  --star-color: #0077be;
+  --star-width: 4px;
   --star-height: 80px;
   --fall-duration: 9s;
   position: absolute;
@@ -50,9 +50,9 @@ body {
   width: var(--star-width);
   height: var(--star-height);
   background: var(--star-color);
-  opacity: 0.7; 
+  opacity: 0.7;
   animation: fall var(--fall-duration) linear infinite;
-  box-shadow: 0 0 10px 2px var(--star-color); 
+  box-shadow: 0 0 10px 2px var(--star-color);
 
   @include sp-layout {
     animation: fall var(--fall-duration) linear infinite;

@@ -6,14 +6,14 @@ const UrlInput = ({ urls, setUrls }) => {
 
   const handleAddUrl = (e) => {
     if ((e.key === 'Enter' || e.key === ' ') && currentUrl.trim()) {
-      setUrls([...urls, currentUrl.trim()]); 
-      setCurrentUrl('');  
-      e.preventDefault();  
+      setUrls([...urls, currentUrl.trim()]);
+      setCurrentUrl('');
+      e.preventDefault();
     }
   };
 
   const handleDeleteUrl = (urlToDelete) => {
-    setUrls(urls.filter((url) => url !== urlToDelete));  
+    setUrls(urls.filter((url) => url !== urlToDelete));
   };
 
   return (
@@ -24,7 +24,7 @@ const UrlInput = ({ urls, setUrls }) => {
         fullWidth
         value={currentUrl}
         onChange={(e) => setCurrentUrl(e.target.value)}
-        onKeyPress={handleAddUrl}
+        onKeyUp={handleAddUrl}
         margin="normal"
       />
 

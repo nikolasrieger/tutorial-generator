@@ -48,6 +48,8 @@ class ScriptWriter:
 
         script = self.model.generate(prompt)
 
-        converted_script = self.model.generate(script + "\nLanguage:" + language + "\n" + OUTPUT_FORMAT, True)
+        converted_script = self.model.generate(
+            script + "\nLanguage:" + language + "\n" + OUTPUT_FORMAT, True
+        )
 
         return converted_script

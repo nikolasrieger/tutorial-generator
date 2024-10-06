@@ -93,7 +93,7 @@ def process_content():
                 temp_pdf.close()
 
                 pdf_filenames.append(file_name)
-            except Exception as e:
+            except Exception:
                 return jsonify({"error": "Internal Server Error"}), 500
 
     topic = request.form.get("topic")

@@ -85,10 +85,10 @@ const App = () => {
     setFeedbackSubmitted(false);
 
     const formData = new FormData();
-    
+
     if (urls.length > 0) {
       urls.forEach(url => {
-        if (url.trim()) { 
+        if (url.trim()) {
           formData.append('urls', url);
         }
       });
@@ -335,7 +335,7 @@ const App = () => {
               >
                 <ThumbDownIcon color={feedbackSubmitted ? 'disabled' : 'error'} fontSize="large" />
               </IconButton>
-              
+
               <IconButton
                 onClick={handleSubmit}
                 sx={{ marginLeft: '8px' }}
