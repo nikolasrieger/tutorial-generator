@@ -12,6 +12,15 @@ There a two tags available: "music" and "speech". If you choose "music", the tex
 If you choose "speech", the text field should be the text of the speech.
 """
 
+template = """
+Draft a structured script for a tutorial on above topic and keep all the specific instructions in mind.\n
+Structure the script with sections such as:\n
+- Introduction (greet the listeners, introduce the topic)\n
+- Body (break down the topic into parts, explain in detail)\n
+- Conclusion (summarize, provide next steps, thank the listeners)\n
+Add speaker cues and timestamps if appropriate.
+"""
+
 
 class ScriptWriter:
     def __init__(self, model: Model):
@@ -24,20 +33,14 @@ class ScriptWriter:
         tone: str,
         audience: str,
         length: int,
+        prompt_template: str = template
     ):
         prompt = (
-            f"Draft a structured script for a tutorial on the topic: '{topic}'.\n"
-            f"The podcast should be designed for {audience} and should have a {tone} tone.\n"
-            f"The podcast should be approximately {length} minutes long.\n\n"
-            f"Include the following context: {context}\n\n"
-            f"Structure the script with sections such as:\n"
-            f"- Introduction (greet the listeners, introduce the topic)\n"
-            f"- Body (break down the topic into parts, explain in detail)\n"
-            f"- Conclusion (summarize, provide next steps, thank the listeners)\n"
-            f"Add speaker cues and timestamps if appropriate."
+            f"The topic: {topic}\n"
+            f"Context: {context}\n"
+            f"Tone: {tone}, Audience: {audience}, Length: {length}\n\n" +
+            prompt_template
         )
-
-        print(prompt)
 
         script = self.model.generate(prompt)
 
