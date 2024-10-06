@@ -36,6 +36,7 @@ const App = () => {
   const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false); 
   const [feedbackType, setFeedbackType] = useState('');
+  const [promptID, setPromptID] = useState('');
 
   const handlePdfChange = (e) => {
     setPdfFiles(e.target.files);
@@ -69,6 +70,7 @@ const App = () => {
         },
       });
       setAudioFile(response.data.audio_file);
+      setPromptID(response.data.prompt_id);
     } catch (err) {
       setError('An error occurred. Please try again.');
     }
@@ -111,6 +113,7 @@ const App = () => {
   const handleFeedbackSubmit = async (comment) => {
     try {
       await axios.post('http://127.0.0.1:5000/submit_feedback', {
+        prompt_id: promptID,
         feedback_type: feedbackType,
         comment: comment || '',
       });

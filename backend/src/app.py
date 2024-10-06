@@ -32,12 +32,10 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///user_feedback.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 
-PROMPT_ID = 0  # TODO: send this maybe via REST
-
 
 @app.route("/submit_feedback", methods=["POST"])
 def submit_feedback():
-    prompt_id = PROMPT_ID
+    prompt_id = request.json["prompt_id"]
     feedback_type = request.json["feedback_type"]
     comment = request.json.get("comment", None)
 
@@ -102,7 +100,6 @@ def process_content():
         prompts = get_prompts()
 
     prompt = choice(prompts)
-    PROMPT_ID = prompt.id
     script = script_writer.generate_script(
         topic, texts, tone, target_audience, length, prompt.prompt_text
     )
@@ -127,7 +124,7 @@ def process_content():
     with open(output_filename, "rb") as audio_file:
         audio_base64 = b64encode(audio_file.read()).decode("utf-8")
     print("Done")
-    return jsonify({"audio_file": audio_base64})
+    return jsonify({"audio_file": audio_base64, "prompt_id": prompt.id})
 
 
 def get_prompts():
