@@ -21,6 +21,7 @@ To get started, ensure you have the following:
 
 - 🐍 **Python 3.x**: Required for running the core logic of the tutorial generator.
 - 📦 **Libraries**: Install the required Python packages from requirements.txt.
+- 🔊 **Sonic PI**: Install Sonic PI to create background or transition music.
 
 ## ⚖️ License
 
