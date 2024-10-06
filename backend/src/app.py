@@ -13,7 +13,7 @@ from time import time
 from models import db, Prompt, Feedback
 from random import choice
 
-# TODO: Add recreate button
+# TODO: Language Checker and creator
 # TODO: Generate video
 # TODO: Different people, different voices, customize...
 # TODO: Use Images from pages

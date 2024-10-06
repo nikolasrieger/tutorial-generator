@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import axios from 'axios';
 import UrlInput from './components/UrlInput';
 import PdfUploadButton from './components/PdfUploadButton';
@@ -263,6 +264,13 @@ const App = () => {
                 sx={{ marginLeft: '8px' }}
               >
                 <ThumbDownIcon color={feedbackSubmitted ? 'disabled' : 'error'} fontSize="large" />
+              </IconButton>
+              
+              <IconButton
+                onClick={handleSubmit}
+                sx={{ marginLeft: '8px' }}
+              >
+                <RefreshIcon color="primary" fontSize="large" />
               </IconButton>
             </Box>
           )}

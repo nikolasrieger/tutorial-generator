@@ -10,11 +10,11 @@ import {
 } from '@mui/material';
 
 const FeedbackDialog = ({ open, onClose, onSubmit }) => {
-  const [comment, setComment] = useState(''); // State for comment input
+  const [comment, setComment] = useState('');
 
   const handleSend = () => {
-    onSubmit(comment); // Pass the comment to the parent component
-    setComment(''); // Clear the comment after submission
+    onSubmit(comment); 
+    setComment(''); 
   };
 
   return (
