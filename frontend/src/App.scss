@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+@function random_range($min, $max) {
+  $rand: random();
+  $random_range: $min + floor($rand * (($max - $min) + 1));
+  @return $random_range;
+}
+
+@mixin sp-layout {
+  @media screen and (max-width: 750px) {
+    @content;
+  }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(ellipse at bottom, #0d1d31 0%, #0c0d13 100%);
+  font-family: 'Roboto', sans-serif;
+}
+
+.app-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
+
+.stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 120%;
+}
+
+.star {
+  $star-count: 50;
+  --star-color: #00ffff; 
+  --star-width: 4px; 
+  --star-height: 80px;
+  --fall-duration: 9s;
+  position: absolute;
+  top: var(--top-offset);
+  left: var(--left-offset);
+  width: var(--star-width);
+  height: var(--star-height);
+  background: var(--star-color);
+  opacity: 0.7; 
+  animation: fall var(--fall-duration) linear infinite;
+  box-shadow: 0 0 10px 2px var(--star-color); 
+
+  @include sp-layout {
+    animation: fall var(--fall-duration) linear infinite;
+  }
+
+  @for $i from 1 through $star-count {
+    &:nth-child(#{$i}) {
+      --top-offset: #{random_range(-100vh, 0vh)};
+      --left-offset: #{random_range(0%, 100%)};
+      --fall-duration: #{random_range(6000, 12000) / 1000}s;
+    }
+  }
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(100vh);
+  }
+}

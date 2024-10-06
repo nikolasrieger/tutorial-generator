@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Button, Typography, CircularProgress, Box, AppBar, Toolbar, TextField, Switch, FormControlLabel } from '@mui/material';
+import { Button, Typography, CircularProgress, Box, AppBar, Toolbar, TextField, Switch, FormControlLabel, Container, Paper } from '@mui/material';
 import axios from 'axios';
 import UrlInput from './components/UrlInput';
 import PdfUploadButton from './components/PdfUploadButton';
+import './App.scss'; 
+import './App.css'; 
 
 const App = () => {
   const [urls, setUrls] = useState([]);
@@ -14,7 +16,7 @@ const App = () => {
   const [targetAudience, setTargetAudience] = useState('');
   const [tone, setTone] = useState('');
   const [length, setLength] = useState('');
-  const [showExtraFields, setShowExtraFields] = useState(false); 
+  const [showExtraFields, setShowExtraFields] = useState(false);
 
   const handlePdfChange = (e) => {
     setPdfFiles(e.target.files);
@@ -30,7 +32,7 @@ const App = () => {
     formData.append('urls', urls);
     formData.append('topic', topic);
 
-    if (showExtraFields) {  
+    if (showExtraFields) {
       formData.append('target_audience', targetAudience);
       formData.append('tone', tone);
       formData.append('length', length);
@@ -76,105 +78,135 @@ const App = () => {
   };
 
   return (
-    <>
-      <AppBar position="sticky" style={{ width: '100%' }}>
+    <div className="app-container">
+      <div className="stars">
+        {Array.from({ length: 50 }).map((_, index) => (
+          <div className="star" key={index}></div>
+        ))}
+      </div>
+
+      <AppBar position="sticky" sx={{ backgroundColor: '#3f51b5', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)' }}>
         <Toolbar>
-          <Typography variant="h4" style={{ flexGrow: 1 }}>
+          <Typography variant="h4" sx={{ flexGrow: 1, color: '#fff', textAlign: 'left', letterSpacing: '2px' }}>
             Teachify
           </Typography>
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ mx: 2, marginTop: 5 }}>
-        <form onSubmit={handleSubmit}>
-          <TextField
-            label="Topic"
-            variant="outlined"
-            fullWidth
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            style={{ marginBottom: '16px' }}
-          />
-
-          <UrlInput urls={urls} setUrls={setUrls} />
-
-          <PdfUploadButton pdfFiles={pdfFiles} handlePdfChange={handlePdfChange} />
-
-          <FormControlLabel
-            control={<Switch checked={showExtraFields} onChange={() => setShowExtraFields(!showExtraFields)} />}
-            label="Advanced options"
-            style={{ marginBottom: '16px' }}
-          />
-
-          {showExtraFields && (
-            <>
-              <TextField
-                label="Target Audience"
-                variant="outlined"
-                fullWidth
-                value={targetAudience}
-                onChange={(e) => setTargetAudience(e.target.value)}
-                style={{ marginBottom: '16px' }}
-              />
+      <Container maxWidth="md" sx={{ marginTop: 5 }}>
+        <Paper elevation={12} sx={{
+          padding: 4,
+          borderRadius: 3,
+          background: 'rgba(255, 255, 255, 0.8)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            transform: 'translateY(-10px)',
+          },
+        }}>
+          <div className="form-container">
+            <form onSubmit={handleSubmit}>
 
               <TextField
-                label="Tone"
+                label="Topic"
                 variant="outlined"
                 fullWidth
-                value={tone}
-                onChange={(e) => setTone(e.target.value)}
-                style={{ marginBottom: '16px' }}
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                sx={{ marginBottom: 3 }}
               />
 
-              <TextField
-                label="Approximate Length (in min)"
-                variant="outlined"
-                fullWidth
-                value={length}
-                onChange={(e) => setLength(e.target.value)}
-                style={{ marginBottom: '16px' }}
+              <UrlInput urls={urls} setUrls={setUrls} />
+              <PdfUploadButton pdfFiles={pdfFiles} handlePdfChange={handlePdfChange} />
+
+              <FormControlLabel
+                control={<Switch checked={showExtraFields} onChange={() => setShowExtraFields(!showExtraFields)} />}
+                label="Advanced Options"
+                sx={{ marginTop: 3, color: '#3f51b5' }}
               />
-            </>
+
+              {showExtraFields && (
+                <>
+                  <TextField
+                    label="Target Audience"
+                    variant="outlined"
+                    fullWidth
+                    value={targetAudience}
+                    onChange={(e) => setTargetAudience(e.target.value)}
+                    sx={{ marginBottom: 3 }}
+                  />
+
+                  <TextField
+                    label="Tone"
+                    variant="outlined"
+                    fullWidth
+                    value={tone}
+                    onChange={(e) => setTone(e.target.value)}
+                    sx={{ marginBottom: 3 }}
+                  />
+
+                  <TextField
+                    label="Approximate Length (in min)"
+                    variant="outlined"
+                    fullWidth
+                    value={length}
+                    onChange={(e) => setLength(e.target.value)}
+                    sx={{ marginBottom: 3 }}
+                  />
+                </>
+              )}
+
+              {loading ? (
+                <Box textAlign="center" mt={2}>
+                  <CircularProgress size={60} thickness={5} sx={{ color: '#3f51b5' }} />
+                </Box>
+              ) : (
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  sx={{
+                    margin: '16px 0',
+                    padding: '14px',
+                    fontWeight: 'bold',
+                    background: 'linear-gradient(45deg, #3f51b5, #2196f3)',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      background: 'linear-gradient(45deg, #303f9f, #1976d2)',
+                      transform: 'scale(1.05)',
+                    },
+                  }}
+                >
+                  Process Content
+                </Button>
+              )}
+            </form>
+          </div>
+
+          {error && (
+            <Typography color="error" align="center" mt={2} sx={{ marginBottom: 3 }}>
+              {error}
+            </Typography>
           )}
 
-          {loading ? (
-            <Box textAlign="center" mt={2}>
-              <CircularProgress />
+          {audioFile && (
+            <Box mt={4} display="flex" alignItems="center" justifyContent="center" sx={{ marginBottom: 3 }}>
+              <audio controls src={`data:audio/mp3;base64,${audioFile}`} style={{ marginLeft: '16px' }} />
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleDownload}
+                sx={{ marginLeft: '16px' }}
+              >
+                Download MP3
+              </Button>
             </Box>
-          ) : (
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              style={{ margin: '16px 0' }}
-            >
-              Process Content
-            </Button>
           )}
-        </form>
-
-        {error && (
-          <Typography color="error" align="center" mt={2} style={{ marginBottom: '16px' }}>
-            {error}
-          </Typography>
-        )}
-
-        {audioFile && (
-          <Box mt={4} display="flex" alignItems="center" justifyContent="center" style={{ marginBottom: '16px' }}>
-            <audio controls src={`data:audio/mp3;base64,${audioFile}`} style={{ marginLeft: '16px' }} />
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={handleDownload}
-              style={{ marginLeft: '16px' }}
-            >
-              Download MP3
-            </Button>
-          </Box>
-        )}
-      </Box>
-    </>
+        </Paper>
+      </Container>
+    </div>
   );
 };
 

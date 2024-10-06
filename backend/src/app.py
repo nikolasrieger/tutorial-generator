@@ -13,7 +13,7 @@ from time import time
 
 # TODO: Automatic Prompt improvement
 # TODO: Generate video
-# TODO: Different people, different voices, customize, length, difficulty ...
+# TODO: Different people, different voices, customize...
 # TODO: Use Images from pages
 # TODO: upload pdfs
 
