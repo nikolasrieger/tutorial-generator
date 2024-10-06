@@ -1,25 +1,27 @@
 from lib.model import Model
 
 OUTPUT_FORMAT = """
-The podcast name is "Teachify".
-Return a JSON object List[Element] with the following structure:
+Return a JSON array List[Element] with the following structure:
 Element {
-    "tag": str,
-    "text": str,
+    "tag": str,   
+    "text": str, 
     "duration": int
 }
-There a two tags available: "music" and "speech". If you choose "music", the text field should be a description of the music and duration the length of the music.
-If you choose "speech", the text field should be the text of the speech.
+Tags:
+"music": The text field should contain a description of the music, and the duration should reflect the length of the music in seconds.
+"speech": The text field should contain the text of the speech segment.
+Make sure the speech content aligns with the podcast name, "Teachify.", do not leave anything of the following content out: 
 """
 
-template = """
-Draft a structured script for a tutorial on above topic and keep all the specific instructions in mind.\n
-Add the above context to the script, put in the informations, do not leave gaps and make sure to maintain the tone and target audience.\n
-Structure the script with sections such as:\n
-- Introduction (greet the listeners, introduce the topic)\n
-- Body (break down the topic into parts, explain in detail)\n
-- Conclusion (summarize, provide next steps, thank the listeners)\n
-Add speaker cues and timestamps if appropriate.
+PROMPT_TEMPLATE = """
+Draft a structured, detailed script for a tutorial on the specified topic, adhering to all the provided instructions and including the provided context.
+The script should include well-researched information without any content gaps, following the tone and target audience as specified. Ensure the tutorial covers the topic in depth and does not just explain how to structure it.
+The script should be clearly organized with the following sections:
+- Introduction: Greet the audience and introduce the topic.
+- Body: Break down the topic into smaller parts, explaining each in detail.
+- Conclusion: Summarize the key points, suggest next steps, and thank the listeners.
+Additionally, incorporate speaker cues, timestamps (if applicable), and maintain a clear, professional, and engaging flow.
+Add some engaging music to the script to enhance the listener's experience.
 """
 
 
@@ -34,10 +36,10 @@ class ScriptWriter:
         tone: str,
         audience: str,
         length: int,
-        prompt_template: str = template
+        prompt_template: str
     ):
         prompt = (
-            f"The topic: {topic}\n"
+            f"Topic: {topic}\n"
             f"Context: {context}\n"
             f"Tone: {tone}, Audience: {audience}, Length: {length}\n\n" +
             prompt_template

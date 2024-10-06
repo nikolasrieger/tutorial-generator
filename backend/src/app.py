@@ -1,14 +1,14 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
-from os import getenv
+from os import getenv, path, remove
 from json import loads
 from lib.model import Model
-from engine.script_writer import ScriptWriter, template
+from engine.script_writer import ScriptWriter, PROMPT_TEMPLATE
 from engine.extractor import Extractor
 from engine.audio_generator import AudioGenerator
 from engine.melody_generator import MelodyGenerator
-from base64 import b64encode
+from base64 import b64encode, b64decode
 from time import time
 from models import db, Prompt, Feedback
 from random import choice
@@ -18,6 +18,7 @@ from random import choice
 # TODO: Different people, different voices, customize...
 # TODO: Use Images from pages
 # TODO: upload pdfs
+# TODO: Parse Feedback and remove bad prompts etc.
 
 
 app = Flask(__name__)
@@ -41,14 +42,14 @@ def submit_feedback():
 
     prompt = Prompt.query.get(prompt_id)
     if not prompt:
-        return jsonify({"message": "Prompt not found!"}), 404
+        return jsonify({"message": "Internal Server Error"}), 500
 
     if feedback_type == "like":
         prompt.likes += 1
     elif feedback_type == "dislike":
         prompt.dislikes += 1
     else:
-        return jsonify({"message": "Invalid feedback type!"}), 400
+        return jsonify({"message": "Internal Server Error"}), 500
 
     if comment:
         new_feedback = Feedback(
@@ -69,34 +70,48 @@ def submit_feedback():
 
     db.session.commit()
 
-    return jsonify({"message": "Feedback submitted successfully!"}), 201
-
+    return jsonify({"message": "Successful"}), 201
 
 @app.route("/process", methods=["POST"])
 def process_content():
-    global PROMPT_ID
     urls = request.form.getlist("urls")
-    urls = urls[0].split(",")
-    pdf_files = request.form.getlist("pdf_files")
+    urls = urls[0].split(",") if urls else []
+    
+    pdf_files_base64 = request.form.getlist("pdf_files")
+    
+    pdf_filenames = []
+    if pdf_files_base64:
+        for idx, pdf_base64 in enumerate(pdf_files_base64):
+            try:
+                pdf_content = b64decode(pdf_base64)
+
+                file_name = f"temp_pdf_{idx}.pdf"
+                temp_pdf = open(f"temp_pdf_{idx}.pdf", "wb")
+                temp_pdf.write(pdf_content)
+                temp_pdf.close()
+                
+                pdf_filenames.append(file_name)
+            except Exception as e:
+                return jsonify({"error": "Internal Server Error"}), 500
+    
     topic = request.form.get("topic")
-    target_audience = request.form.get("targetAudience", "general audience")
+    target_audience = request.form.get("target_audience", "general audience")
     tone = request.form.get("tone", "informative")
     length = int(request.form.get("length", 5))
 
-    if not urls and not pdf_files:
-        return jsonify({"error": "No URLs or PDF files provided"}), 400
+    if not urls and not pdf_filenames:
+        return jsonify({"message": "Internal Server Error"}), 500
 
-    extractor = Extractor(pdf_filenames=pdf_files, urls=urls)
+    extractor = Extractor(pdf_filenames=pdf_filenames, urls=urls)
     results = extractor.extract_text()
 
-    texts = ""
-    for result in results:
-        texts += result + "\n"
+    print(results)
+    texts = "\n".join(results)
 
     script_writer = ScriptWriter(model)
     prompts = get_prompts()
-    if prompts == []:
-        add_prompt(template)
+    if not prompts:
+        add_prompt(PROMPT_TEMPLATE)
         prompts = get_prompts()
 
     prompt = choice(prompts)
@@ -123,8 +138,13 @@ def process_content():
 
     with open(output_filename, "rb") as audio_file:
         audio_base64 = b64encode(audio_file.read()).decode("utf-8")
-    print("Done")
+    
+    for pdf_file in pdf_filenames:
+        if path.exists(pdf_file):
+            remove(pdf_file)
+
     return jsonify({"audio_file": audio_base64, "prompt_id": prompt.id})
+
 
 
 def get_prompts():

@@ -26,6 +26,7 @@ import './App.css';
 const App = () => {
   const [urls, setUrls] = useState([]);
   const [pdfFiles, setPdfFiles] = useState([]);
+  const [pdfBase64Files, setPdfBase64Files] = useState([]);  // New state for base64 encoded PDFs
   const [loading, setLoading] = useState(false);
   const [audioFile, setAudioFile] = useState(null);
   const [error, setError] = useState('');
@@ -39,8 +40,40 @@ const App = () => {
   const [feedbackType, setFeedbackType] = useState('');
   const [promptID, setPromptID] = useState('');
 
+  // Function to handle PDF upload
   const handlePdfChange = (e) => {
-    setPdfFiles(e.target.files);
+    const files = e.target.files;
+    setPdfFiles(files);
+    convertFilesToBase64(files);  // Convert to base64
+  };
+
+  // Function to convert PDF files to Base64
+  const convertFilesToBase64 = (files) => {
+    const base64Files = [];
+    const fileReaders = Array.from(files).map(file => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          resolve(reader.result.split(',')[1]); // Exclude the "data:application/pdf;base64," part
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    });
+
+    Promise.all(fileReaders)
+      .then(base64FilesArray => {
+        setPdfBase64Files(base64FilesArray);
+      })
+      .catch(error => console.error("Error converting files to base64:", error));
+  };
+
+  // Function to remove a selected PDF
+  const handleRemovePdf = (index) => {
+    const newPdfFiles = Array.from(pdfFiles).filter((_, i) => i !== index);
+    const newPdfBase64Files = pdfBase64Files.filter((_, i) => i !== index);
+    setPdfFiles(newPdfFiles);
+    setPdfBase64Files(newPdfBase64Files);
   };
 
   const handleSubmit = async (e) => {
@@ -60,8 +93,9 @@ const App = () => {
       formData.append('length', length);
     }
 
-    for (let i = 0; i < pdfFiles.length; i++) {
-      formData.append('pdf_files', pdfFiles[i]);
+    // Attach the base64 PDFs
+    for (let i = 0; i < pdfBase64Files.length; i++) {
+      formData.append('pdf_files', pdfBase64Files[i]);
     }
 
     try {
@@ -166,7 +200,11 @@ const App = () => {
               />
 
               <UrlInput urls={urls} setUrls={setUrls} />
-              <PdfUploadButton pdfFiles={pdfFiles} handlePdfChange={handlePdfChange} />
+              <PdfUploadButton
+                pdfFiles={pdfFiles}
+                handlePdfChange={handlePdfChange}
+                handleRemovePdf={handleRemovePdf}
+              />
 
               <FormControlLabel
                 control={<Switch checked={showExtraFields} onChange={() => setShowExtraFields(!showExtraFields)} />}
