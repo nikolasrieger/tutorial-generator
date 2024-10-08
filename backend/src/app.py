@@ -16,6 +16,7 @@ from random import choice
 
 # TODO: Use Images from pages
 # TODO: Generate video
+# TODO: Generate sum up quiz/ code questions
 
 
 app = Flask(__name__)
@@ -155,27 +156,28 @@ def teardown():
 def get_prompts():
     return Prompt.query.all()
 
+
 def get_prompt():
     prompts = get_prompts()
 
     prompt_data = []
     for prompt in prompts:
         likes = prompt.likes
-        dislikes = max(1, prompt.dislikes)  
-        ratio = likes / dislikes 
-        
-        score = likes + ratio 
+        dislikes = max(1, prompt.dislikes)
+        ratio = likes / dislikes
+
+        score = likes + ratio
         prompt_data.append({"prompt": prompt, "score": score})
 
     total_score = sum([p["score"] for p in prompt_data])
     if total_score == 0:
         total_score = 1
-    
+
     for data in prompt_data:
         data["probability"] = data["score"] / total_score
-    
+
     if not prompt_data:
-        add_prompt(INITIAL_PROMPT_TEMPLATE) 
+        add_prompt(INITIAL_PROMPT_TEMPLATE)
         prompt_data = [{"prompt": Prompt.query.first(), "probability": 1.0}]
 
     prompts = [p["prompt"] for p in prompt_data]

@@ -16,9 +16,11 @@ class ScriptWriter:
         prompt_template: str,
         language: str,
     ):
+        improved_context = self.improve_context(context)
+
         prompt = (
             f"Topic: {topic}\n"
-            f"Context: {context}\n"
+            f"Context: {improved_context}\n"
             f"Tone: {tone}, Audience: {audience}, Length: {length}, Language: {language}\n\n"
             + prompt_template
         )
@@ -30,3 +32,14 @@ class ScriptWriter:
         )
 
         return converted_script
+
+    def improve_context(self, context: str):
+        improved_context = self.model.generate(
+            f"Here is the given context: {context}\n"
+            f"Please enhance this context by expanding on key points, adding more details, and organizing it in a structured manner. "
+            f"Include possible subtopics, key points, and questions that a tutorial on this topic should address, think about possible learning goals. "
+            f"Provide clear answers to the questions and ensure the entire explanation follows a logical, well-structured flow. "
+            f"Return only the improved context."
+        )
+
+        return improved_context
