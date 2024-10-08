@@ -14,10 +14,6 @@ from time import time
 from models import db, Prompt, Feedback
 from random import choice
 
-# TODO: Use Images from pages
-# TODO: Generate video
-# TODO: Generate sum up quiz/ code questions
-
 
 app = Flask(__name__)
 CORS(app)
