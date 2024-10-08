@@ -4,16 +4,16 @@ from dotenv import load_dotenv
 from os import getenv, path, remove
 from json import loads
 from lib.model import Model
-from engine.script_writer import ScriptWriter, PROMPT_TEMPLATE
+from engine.script_writer import ScriptWriter
 from engine.extractor import Extractor
 from engine.audio_generator import AudioGenerator
 from engine.melody_generator import MelodyGenerator
+from engine.config import THRESHOLD_BAD_PROMPTS, INITIAL_PROMPT_TEMPLATE
 from base64 import b64encode, b64decode
 from time import time
 from models import db, Prompt, Feedback
 from random import choice
 
-# TODO: Parse Feedback and remove bad prompts etc.
 # TODO: Use Images from pages
 # TODO: Generate video
 
@@ -109,12 +109,8 @@ def process_content():
     texts = "\n".join(results)
 
     script_writer = ScriptWriter(model)
-    prompts = get_prompts()
-    if not prompts:
-        add_prompt(PROMPT_TEMPLATE)
-        prompts = get_prompts()
+    prompt = get_prompt()
 
-    prompt = choice(prompts)
     script = script_writer.generate_script(
         topic, texts, tone, target_audience, length, prompt.prompt_text, language
     )
@@ -145,14 +141,65 @@ def process_content():
     return jsonify({"audio_file": audio_base64, "prompt_id": prompt.id})
 
 
+@app.teardown_appcontext
+def teardown():
+    cleanup_bad_prompts()
+    prompts = get_prompts()
+    new_prompt = model.generate(
+        f"Generate a new, improved prompt based on the feedback: {prompts}"
+        f"Do not change the general purpose of the prompt, but improve it as you like. Return only the prompt text."
+    )
+    add_prompt(new_prompt)
+
+
 def get_prompts():
     return Prompt.query.all()
+
+def get_prompt():
+    prompts = get_prompts()
+
+    prompt_data = []
+    for prompt in prompts:
+        likes = prompt.likes
+        dislikes = max(1, prompt.dislikes)  
+        ratio = likes / dislikes 
+        
+        score = likes + ratio 
+        prompt_data.append({"prompt": prompt, "score": score})
+
+    total_score = sum([p["score"] for p in prompt_data])
+    if total_score == 0:
+        total_score = 1
+    
+    for data in prompt_data:
+        data["probability"] = data["score"] / total_score
+    
+    if not prompt_data:
+        add_prompt(INITIAL_PROMPT_TEMPLATE) 
+        prompt_data = [{"prompt": Prompt.query.first(), "probability": 1.0}]
+
+    prompts = [p["prompt"] for p in prompt_data]
+    probabilities = [p["probability"] for p in prompt_data]
+
+    selected_prompt = choice(prompts, weights=probabilities, k=1)[0]
+    return selected_prompt["prompt"]
 
 
 def add_prompt(prompt_text: str):
     new_prompt = Prompt(prompt_text=prompt_text)
     db.session.add(new_prompt)
     db.session.commit()
+
+
+def cleanup_bad_prompts():
+    prompts_to_delete = Prompt.query.filter(
+        Prompt.dislikes > THRESHOLD_BAD_PROMPTS
+    ).all()
+
+    if prompts_to_delete:
+        for prompt in prompts_to_delete:
+            db.session.delete(prompt)
+        db.session.commit()
 
 
 if __name__ == "__main__":
