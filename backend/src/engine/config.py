@@ -8,13 +8,14 @@ Element {
     "duration": int
 }
 Tags:
-"music": The text field should contain a description of the music, and the duration should reflect the length of the music in seconds.
+"music": The text field should contain a description of the music, and the duration should reflect the length of the music in seconds. The length should be not more than 30 seconds.
 "speech": The text field should contain the text of the speech segment.
+Generate all of the speech segments in the desired language, as specified above. Do not generate any "speech" in another language.
 Make sure the speech content aligns with the podcast name, "Teachify.", do not leave anything of the following content out: 
 """
 
 INITIAL_PROMPT_TEMPLATE = """
-Draft a structured, detailed script for a tutorial on the specified topic, adhering to all the provided instructions and including the provided context.
+Draft a structured, detailed script for a tutorial on the specified topic, adhering to all the provided instructions and including the provided context, do not ask only questions, rather answer them.
 The script should include well-researched information without any content gaps, following the tone and target audience as specified. Ensure the tutorial covers the topic in depth and does not just explain how to structure it.
 The script should be clearly organized with the following sections:
 - Introduction: Greet the audience and introduce the topic.

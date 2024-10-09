@@ -12,7 +12,7 @@ from engine.config import THRESHOLD_BAD_PROMPTS, INITIAL_PROMPT_TEMPLATE
 from base64 import b64encode, b64decode
 from time import time
 from models import db, Prompt, Feedback
-from random import choice
+from numpy.random import choice
 
 
 app = Flask(__name__)
@@ -139,11 +139,19 @@ def process_content():
 
 
 @app.teardown_appcontext
-def teardown():
+def teardown(exception=None):
     cleanup_bad_prompts()
     prompts = get_prompts()
+    if len(prompts) == 0: 
+        return
+
+    prompt_list = []
+    for prompt in prompts:
+        prompt_text = {"text": prompt.prompt_text, "likes": prompt.likes, "dislikes": prompt.dislikes}
+        prompt_list.append(prompt_text)
+
     new_prompt = model.generate(
-        f"Generate a new, improved prompt based on the feedback: {prompts}"
+        f"Generate a new, improved prompt based on the feedback: {prompt_list}"
         f"Do not change the general purpose of the prompt, but improve it as you like. Return only the prompt text."
     )
     add_prompt(new_prompt)
@@ -167,10 +175,11 @@ def get_prompt():
 
     total_score = sum([p["score"] for p in prompt_data])
     if total_score == 0:
-        total_score = 1
-
-    for data in prompt_data:
-        data["probability"] = data["score"] / total_score
+        for data in prompt_data:
+            data["probability"] = 1 / len(prompt_data)
+    else:
+        for data in prompt_data:
+            data["probability"] = data["score"] / total_score
 
     if not prompt_data:
         add_prompt(INITIAL_PROMPT_TEMPLATE)
@@ -179,8 +188,8 @@ def get_prompt():
     prompts = [p["prompt"] for p in prompt_data]
     probabilities = [p["probability"] for p in prompt_data]
 
-    selected_prompt = choice(prompts, weights=probabilities, k=1)[0]
-    return selected_prompt["prompt"]
+    selected_prompt = choice(prompts, 1, p=probabilities)[0]
+    return selected_prompt
 
 
 def add_prompt(prompt_text: str):

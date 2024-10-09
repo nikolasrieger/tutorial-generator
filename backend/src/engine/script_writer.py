@@ -17,7 +17,6 @@ class ScriptWriter:
         language: str,
     ):
         improved_context = self.improve_context(context)
-
         prompt = (
             f"Topic: {topic}\n"
             f"Context: {improved_context}\n"
@@ -39,6 +38,7 @@ class ScriptWriter:
             f"Please enhance this context by expanding on key points, adding more details, and organizing it in a structured manner. "
             f"Include possible subtopics, key points, and questions that a tutorial on this topic should address, think about possible learning goals. "
             f"Provide clear answers to the questions and ensure the entire explanation follows a logical, well-structured flow. "
+            f"Do not leave any details out, rather add additional information to make the context more informative and engaging. "
             f"Return only the improved context."
         )
 
