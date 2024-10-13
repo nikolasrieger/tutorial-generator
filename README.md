@@ -29,15 +29,17 @@ To get started, make sure you have the following:
 For the **frontend**:
 1. Install **Node.js** and **npm**.
 2. Run `npm install` to set up the frontend dependencies.
+3. Start the frontend via `npm start`.
 
 For the **backend**:
 1. Set up the virtual environment by running `python -m venv .venv`.
 2. Activate the virtual environment:
    - On **Windows**: `.\.venv\Scripts\activate`
    - On **Linux**: `source .venv/bin/activate`
-3. Run the backend with `python app.py`.
-4. Start the Sonic Pi Application in the background.
-
+3. Install **Ruby** and its package manager.
+4. Run `gem install sonic-pi-cli4` to install the CLI for Sonic Pi (if you are using a Sonic Pi Version lower than 4, use `gem install sonic-pi-cli` instead).
+5. Start the Sonic Pi Application in the background (**Note:** You might hear sounds from the background melody being generated while creating a tutorial).
+6. Run the backend with `python app.py`.
 
 ## ⚖️ License
 
