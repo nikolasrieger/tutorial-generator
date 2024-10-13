@@ -17,11 +17,27 @@ With this tutorial generator, users can quickly create tutorials, guides, and in
 
 ### Prerequisites
 
-To get started, ensure you have the following:
+To get started, make sure you have the following:
 
-- 🐍 **Python 3.x**: Required for running the core logic of the tutorial generator.
-- 📦 **Libraries**: Install the required Python packages from requirements.txt.
-- 🔊 **Sonic PI**: Install Sonic PI to create background or transition music.
+- 🐍 **Python 3.x**: Essential for running the core logic of the tutorial generator.
+- 📦 **Libraries**: Install the required Python packages listed in `requirements.txt`.
+- 🔊 **Sonic Pi**: Download and install Sonic Pi to create background or transition music.
+- 🔑 **Gemini API Key**: Add your Gemini API Key in a `.env` file.
+
+### Installation
+
+For the **frontend**:
+1. Install **Node.js** and **npm**.
+2. Run `npm install` to set up the frontend dependencies.
+
+For the **backend**:
+1. Set up the virtual environment by running `python -m venv .venv`.
+2. Activate the virtual environment:
+   - On **Windows**: `.\.venv\Scripts\activate`
+   - On **Linux**: `source .venv/bin/activate`
+3. Run the backend with `python app.py`.
+4. Start the Sonic Pi Application in the background.
+
 
 ## ⚖️ License
 
